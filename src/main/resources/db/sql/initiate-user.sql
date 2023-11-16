@@ -1,0 +1,1 @@
+insert into users(username, password, email, full_name, expired_at, created_by, created_at, updated_by, updated_at) VALUES ('admin', 'b15dcpt082', 'admin@gmky.dev', 'Vu Hoang Hiep', current_timestamp, 'system', current_timestamp, 'system', current_timestamp);

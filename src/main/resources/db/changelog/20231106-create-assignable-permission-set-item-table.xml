@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <changeSet id="20231106-create-assignable-permission-set-item-table" author="gmky">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="ASSIGNABLE_PERMISSION_SET_ITEM" />
+            </not>
+        </preConditions>
+        <createTable tableName="ASSIGNABLE_PERMISSION_SET_ITEM">
+            <column name="APS_ID" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+            <column name="FP_ID" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="20231106-create-assignable-permission-set-item-index" author="gmky">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="ASSIGNABLE_PERMISSION_SET" />
+                <tableExists tableName="FUNCTION_PRIVILEGE" />
+            </and>
+        </preConditions>
+        <addForeignKeyConstraint baseTableName="ASSIGNABLE_PERMISSION_SET_ITEM" baseColumnNames="APS_ID"
+                                 constraintName="FK_APS_ID"
+                                 referencedTableName="ASSIGNABLE_PERMISSION_SET"
+                                 referencedColumnNames="ID" />
+        <addForeignKeyConstraint baseTableName="ASSIGNABLE_PERMISSION_SET_ITEM" baseColumnNames="FP_ID"
+                                 constraintName="FK_FP_ID"
+                                 referencedTableName="FUNCTION_PRIVILEGE"
+                                 referencedColumnNames="ID" />
+    </changeSet>
+</databaseChangeLog>

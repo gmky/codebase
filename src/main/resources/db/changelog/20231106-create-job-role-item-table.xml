@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <changeSet id="20231106-create-job-role-item-table" author="gmky">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="JOB_ROLE_ITEM" />
+            </not>
+        </preConditions>
+        <createTable tableName="JOB_ROLE_ITEM">
+            <column name="JOB_ROLE_ID" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+            <column name="FP_ID" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet id="20231106-create-job-role-item-index" author="gmky">
+        <preConditions onFail="MARK_RAN">
+            <and>
+                <tableExists tableName="JOB_ROLE" />
+                <tableExists tableName="FUNCTION_PRIVILEGE" />
+            </and>
+        </preConditions>
+        <addForeignKeyConstraint baseTableName="JOB_ROLE_ITEM" baseColumnNames="JOB_ROLE_ID"
+                                 constraintName="FK_JOB_ROLE_ID"
+                                 referencedTableName="JOB_ROLE"
+                                 referencedColumnNames="ID" />
+        <addForeignKeyConstraint baseTableName="JOB_ROLE_ITEM" baseColumnNames="FP_ID"
+                                 constraintName="FK_FP_ID"
+                                 referencedTableName="FUNCTION_PRIVILEGE"
+                                 referencedColumnNames="ID" />
+    </changeSet>
+</databaseChangeLog>

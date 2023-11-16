@@ -1,0 +1,341 @@
+openapi: 3.0.3
+info:
+  title: CodeBase API Docs
+  version: 1.0.0
+  description: CodeBase API Docs
+servers:
+  - url: http://localhost:8080
+    description: Local Env
+tags:
+  - name: User Management
+    description: User Management
+  - name: Authentication
+    description: Authentication
+  - name: Job Role Management
+paths:
+  /client-api/v1/auth/login:
+    post:
+      operationId: login
+      description: Login with username and password
+      tags:
+        - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginReq'
+      responses:
+        200:
+          description: Login Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        400:
+          $ref: './common-type.yaml/#/components/responses/BadRequestException'
+        401:
+          $ref: './common-type.yaml/#/components/responses/UnauthorizedException'
+        403:
+          $ref: './common-type.yaml/#/components/responses/ForbiddenException'
+        404:
+          $ref: './common-type.yaml/#/components/responses/NotFoundException'
+        500:
+          $ref: './common-type.yaml/#/components/responses/InternalServerException'
+  /client-api/v1/users:
+    get:
+      operationId: getAllUsers
+      description: Get all users with pagination
+      tags:
+        - User Management
+      parameters:
+        - name: keyword
+          in: query
+          schema:
+            type: string
+        - name: pageable
+          in: query
+          schema:
+            $ref: './common-type.yaml/#/components/schemas/Pageable'
+      responses:
+        200:
+          description: Get all users with pagination
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponse'
+        400:
+          $ref: './common-type.yaml/#/components/responses/BadRequestException'
+        401:
+          $ref: './common-type.yaml/#/components/responses/UnauthorizedException'
+        403:
+          $ref: './common-type.yaml/#/components/responses/ForbiddenException'
+        404:
+          $ref: './common-type.yaml/#/components/responses/NotFoundException'
+        500:
+          $ref: './common-type.yaml/#/components/responses/InternalServerException'
+    post:
+      operationId: createUser
+      description: Create user
+      tags:
+        - User Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserReq'
+      responses:
+        201:
+          description: Create user successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        400:
+          $ref: './common-type.yaml/#/components/responses/BadRequestException'
+        401:
+          $ref: './common-type.yaml/#/components/responses/UnauthorizedException'
+        403:
+          $ref: './common-type.yaml/#/components/responses/ForbiddenException'
+        404:
+          $ref: './common-type.yaml/#/components/responses/NotFoundException'
+        500:
+          $ref: './common-type.yaml/#/components/responses/InternalServerException'
+  /client-api/v1/users/{userId}:
+    get:
+      operationId: getUserDetailById
+      description: Get user detail by ID
+      tags:
+        - User Management
+      parameters:
+        - name: userId
+          required: true
+          in: path
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: User detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        400:
+          $ref: './common-type.yaml/#/components/responses/BadRequestException'
+        401:
+          $ref: './common-type.yaml/#/components/responses/UnauthorizedException'
+        403:
+          $ref: './common-type.yaml/#/components/responses/ForbiddenException'
+        404:
+          $ref: './common-type.yaml/#/components/responses/NotFoundException'
+        500:
+          $ref: './common-type.yaml/#/components/responses/InternalServerException'
+    put:
+      operationId: updateUserById
+      description: Update user by ID
+      tags:
+        - User Management
+      parameters:
+        - name: userId
+          required: true
+          in: path
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserReq'
+      responses:
+        200:
+          description: Update user successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        400:
+          $ref: './common-type.yaml/#/components/responses/BadRequestException'
+        401:
+          $ref: './common-type.yaml/#/components/responses/UnauthorizedException'
+        403:
+          $ref: './common-type.yaml/#/components/responses/ForbiddenException'
+        404:
+          $ref: './common-type.yaml/#/components/responses/NotFoundException'
+        500:
+          $ref: './common-type.yaml/#/components/responses/InternalServerException'
+  /client-api/v1/job-roles:
+    get:
+      operationId: getAllJobRoles
+      description: Get all job roles with pagination
+      tags:
+        - Job Role Management
+      parameters:
+        - name: keyword
+          in: query
+          schema:
+            type: string
+        - name: pageable
+          in: query
+          schema:
+            $ref: './common-type.yaml/#/components/schemas/Pageable'
+      responses:
+        200:
+          description: Get all job roles with pagination
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/JobRoleResponse'
+        400:
+          $ref: './common-type.yaml/#/components/responses/BadRequestException'
+        401:
+          $ref: './common-type.yaml/#/components/responses/UnauthorizedException'
+        403:
+          $ref: './common-type.yaml/#/components/responses/ForbiddenException'
+        404:
+          $ref: './common-type.yaml/#/components/responses/NotFoundException'
+        500:
+          $ref: './common-type.yaml/#/components/responses/InternalServerException'
+  /client-api/v1/job-roles/{jobRoleId}:
+    get:
+      operationId: getJobRoleDetail
+      description: Get job role detail by ID
+      tags:
+        - Job Role Management
+      parameters:
+        - name: jobRoleId
+          required: true
+          in: path
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Get job role detail by ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobRoleResponse'
+        400:
+          $ref: './common-type.yaml/#/components/responses/BadRequestException'
+        401:
+          $ref: './common-type.yaml/#/components/responses/UnauthorizedException'
+        403:
+          $ref: './common-type.yaml/#/components/responses/ForbiddenException'
+        404:
+          $ref: './common-type.yaml/#/components/responses/NotFoundException'
+        500:
+          $ref: './common-type.yaml/#/components/responses/InternalServerException'
+components:
+  schemas:
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        username:
+          type: string
+        email:
+          type: string
+        status:
+          $ref: './common-type.yaml/#/components/schemas/UserStatusEnum'
+        fullName:
+          type: string
+        expiredAt:
+          type: string
+          format: date-time
+        activatedAt:
+          type: string
+          format: date-time
+        resetAt:
+          type: string
+          format: date-time
+        deactivatedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedBy:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time
+    JobRoleResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        description:
+          type: string
+        startAt:
+          type: string
+          format: date-time
+        endAt:
+          type: string
+          format: date-time
+        apsId:
+          type: integer
+          format: int64
+    LoginReq:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        rememberMe:
+          type: boolean
+    LoginResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+    CreateUserReq:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+        fullName:
+          type: string
+        status:
+          $ref: './common-type.yaml/#/components/schemas/UserStatusEnum'
+        expiredAt:
+          type: string
+          format: date-time
+    UpdateUserReq:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        email:
+          type: string
+        fullName:
+          type: string
+        status:
+          $ref: './common-type.yaml/#/components/schemas/UserStatusEnum'
+        expiredAt:
+          type: string
+          format: date-time
+        deactivatedAt:
+          type: string
+          format: date-time

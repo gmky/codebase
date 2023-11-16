@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <include file="./db/changelog/20231106-create-user-table.xml" />
+    <include file="./db/changelog/20231106-create-privilege-table.xml" />
+    <include file="./db/changelog/20231106-create-business-function-table.xml" />
+    <include file="./db/changelog/20231106-create-function-privilege-table.xml" />
+    <include file="./db/changelog/20231106-create-job-role-table.xml" />
+    <include file="./db/changelog/20231106-create-assignable-permission-set-table.xml" />
+    <include file="/db/changelog/20231106-create-assignable-permission-set-item-table.xml" />
+    <include file="./db/changelog/20231106-create-job-role-item-table.xml" />
+    <include file="./db/changelog/20231106-create-assigned-function-group-table.xml" />
+</databaseChangeLog>

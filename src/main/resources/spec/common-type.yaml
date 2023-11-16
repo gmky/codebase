@@ -1,0 +1,90 @@
+openapi: 3.0.3
+info:
+  title: Codebase API Docs
+  version: 1.0.0
+  description: Codebase API Docs
+paths: {}
+components:
+  parameters: {}
+  schemas:
+    HttpException:
+      type: object
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+    UserStatusEnum:
+      type: string
+      enum:
+        - PENDING
+        - ACTIVE
+        - IN_ACTIVE
+    Pageable:
+      type: object
+      properties:
+        page:
+          type: integer
+        size:
+          type: integer
+  responses:
+    BadRequestException:
+      description: BadRequestException
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HttpException'
+          examples:
+            BadRequestException:
+              value:
+                status: 400
+                code: BAD_REQUEST
+                message: Bad Request Exception
+    NotFoundException:
+      description: NotFoundException
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HttpException'
+          examples:
+            NotFoundException:
+              value:
+                status: 404
+                code: NOT_FOUND
+                message: Not Found Exception
+    UnauthorizedException:
+      description: UnauthorizedException
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HttpException'
+          examples:
+            UnauthorizedException:
+              value:
+                status: 401
+                code: UNAUTHORIZED
+                message: Unauthorized Exception
+    ForbiddenException:
+      description: ForbiddenException
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HttpException'
+          examples:
+            ForbiddenException:
+              value:
+                status: 401
+                code: FORBIDDEN
+                message: Forbidden Exception
+    InternalServerException:
+      description: InternalServerException
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HttpException'
+          examples:
+            InternalServerException:
+              value:
+                status: 500
+                code: INTERNAL_SERVER_EXCEPTION
+                message: Internal Server Exception

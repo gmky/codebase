@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.8.xsd">
+    <changeSet id="20231106-create-function-privilege" author="gmky">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="FUNCTION_PRIVILEGE" />
+            </not>
+        </preConditions>
+        <createTable tableName="FUNCTION_PRIVILEGE">
+            <column name="ID" type="BIGINT" autoIncrement="true">
+                <constraints nullable="false" primaryKey="true"/>
+            </column>
+            <column name="BUSINESS_FUNCTION_CODE" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="RESOURCE_CODE" type="VARCHAR(255)">
+                <constraints nullable="false" />
+            </column>
+            <column name="PRIVILEGE_CODE" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="BUSINESS_FUNCTION_ID" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+            <column name="PRIVILEGE_ID" type="BIGINT">
+                <constraints nullable="false" />
+            </column>
+            <column name="CREATED_BY" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="CREATED_AT" type="TIMESTAMP(6)">
+                <constraints nullable="false" />
+            </column>
+            <column name="UPDATED_BY" type="VARCHAR(50)"/>
+            <column name="UPDATED_AT" type="TIMESTAMP(6)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="20231106-create-function-privilege-table-fake-data" author="gmky">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="FUNCTION_PRIVILEGE" />
+        </preConditions>
+        <sqlFile path="db/sql/initiate-function-privilege.sql" />
+    </changeSet>
+</databaseChangeLog>

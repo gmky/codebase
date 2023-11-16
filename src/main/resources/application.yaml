@@ -1,0 +1,30 @@
+server:
+  compression:
+    enabled: ${SPRING_COMPRESSION_ENABLED:true}
+logging:
+  level:
+    root: info
+    gmky: info
+    org.hibernate.type.descriptor.sql.BasicBinder: trace
+spring:
+  docker:
+    compose:
+      enabled: false
+  application:
+    name: ${SPRING_APPLICATION_NAME:CodeBase}
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: ${SPRING_DATASOURCE_USERNAME:gmky}
+    password: ${SPRING_DATASOURCE_PASSWORD:Pu2vQz3jyfXB}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://ep-curly-sky-90148409.ap-southeast-1.aws.neon.tech/test}
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+  liquibase:
+    enabled: true
+    change-log: db/changelog-master.xml
+application:
+  security:
+    base64-secret: ${SPRING_SECURITY_BASE64_SECRET:Rm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uCg==}
