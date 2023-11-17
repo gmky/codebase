@@ -5,7 +5,7 @@ logging:
   level:
     root: info
     gmky: info
-    org.hibernate.type.descriptor.sql.BasicBinder: trace
+    org.hibernate.orm.jdbc.bind: trace
 spring:
   docker:
     compose:
@@ -21,6 +21,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+        show_sql: true
     open-in-view: false
   liquibase:
     enabled: true

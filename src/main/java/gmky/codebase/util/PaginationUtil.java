@@ -14,7 +14,7 @@ public class PaginationUtil {
     public static <T> HttpHeaders generatePaginationHeader(ServletUriComponentsBuilder uriBuilder, Page<T> page) {
         HttpHeaders headers = new HttpHeaders();
         if (page == null) return headers;
-        headers.add("X-Total-Count", Long.toString(page.getTotalElements()));
+        headers.add(X_TOTAL_COUNT, Long.toString(page.getTotalElements()));
         int pageNumber = page.getNumber();
         int pageSize = page.getSize();
         StringBuilder link = new StringBuilder();
