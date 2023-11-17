@@ -10,7 +10,6 @@ import gmky.codebase.model.entity.User;
 import gmky.codebase.repository.UserRepository;
 import gmky.codebase.service.impl.UserServiceImpl;
 import org.assertj.core.api.Assertions;
-import org.hibernate.sql.Update;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
+class UserServiceTest {
     private static final String USERNAME = "admin";
     private static final String EMAIL = "admin@gmky.dev";
     @Mock
