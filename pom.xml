@@ -16,7 +16,7 @@
 	<properties>
 		<java.version>17</java.version>
 		<liquibase.version>4.24.0</liquibase.version>
-		<openapi.version>7.0.1</openapi.version>
+		<openapi.version>7.1.0</openapi.version>
 		<swagger.version>2.2.16</swagger.version>
 		<org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
 		<jwt.version>0.12.3</jwt.version>
