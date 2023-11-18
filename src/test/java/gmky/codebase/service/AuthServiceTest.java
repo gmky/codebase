@@ -1,20 +1,23 @@
 package gmky.codebase.service;
 
 import gmky.codebase.api.model.LoginReq;
-import gmky.codebase.api.model.LoginResponse;
+import gmky.codebase.api.model.UserResponse;
+import gmky.codebase.exception.ForbiddenException;
 import gmky.codebase.exception.NotFoundException;
 import gmky.codebase.exception.UnauthorizedException;
+import gmky.codebase.mapper.UserMapper;
 import gmky.codebase.model.entity.User;
 import gmky.codebase.repository.UserRepository;
 import gmky.codebase.security.TokenProvider;
 import gmky.codebase.service.impl.AuthServiceImpl;
-import org.assertj.core.api.Assert;
+import gmky.codebase.util.SecurityUtil;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,6 +30,9 @@ class AuthServiceTest {
     private static final String USERNAME = "admin";
     private static final String RAW_PASSWORD = "b15dcpt082";
     private static final String EMAIL = "admin@gmky.dev";
+    @Mock
+    UserMapper userMapper;
+
     @Mock
     UserRepository userRepository;
 
@@ -67,6 +73,29 @@ class AuthServiceTest {
         Mockito.when(userRepository.findByUsernameIgnoreCase(USERNAME)).thenReturn(Optional.of(user));
         Mockito.when(passwordEncoder.matches(RAW_PASSWORD, user.getPassword())).thenReturn(false);
         Assertions.assertThatThrownBy(() -> authService.login(req)).isInstanceOf(UnauthorizedException.class);
+    }
+
+    @Test
+    @DisplayName("Get profile should throw ForbiddenException")
+    void testMe_shouldThrowForbiddenException() {
+        try (MockedStatic<SecurityUtil> util = Mockito.mockStatic(SecurityUtil.class)) {
+            util.when(SecurityUtil::getCurrentUsername).thenReturn(USERNAME);
+            Mockito.when(userRepository.findByUsernameIgnoreCase(USERNAME)).thenReturn(Optional.empty());
+            Assertions.assertThatThrownBy(() -> authService.me()).isInstanceOf(ForbiddenException.class);
+        }
+    }
+
+    @Test
+    @DisplayName("Get profile should return data")
+    void testMe_shouldOK() {
+        try (MockedStatic<SecurityUtil> util = Mockito.mockStatic(SecurityUtil.class)) {
+            var user = mockUser();
+            util.when(SecurityUtil::getCurrentUsername).thenReturn(USERNAME);
+            Mockito.when(userRepository.findByUsernameIgnoreCase(USERNAME)).thenReturn(Optional.of(user));
+            Mockito.when(userMapper.toDto(user)).thenReturn(new UserResponse());
+            var result = authService.me();
+            Assertions.assertThat(result).isNotNull();
+        }
     }
 
     private User mockUser() {
