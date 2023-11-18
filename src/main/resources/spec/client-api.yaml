@@ -318,6 +318,7 @@ components:
           type: string
         password:
           type: string
+          format: password
         rememberMe:
           type: boolean
     LoginResponse:
@@ -325,8 +326,10 @@ components:
       properties:
         accessToken:
           type: string
+          format: password
         refreshToken:
           type: string
+          format: password
     CreateUserReq:
       type: object
       properties:

@@ -29,7 +29,6 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public LoginResponse login(LoginReq req) {
-        log.info("Login with username: [{}]", req.getUsername());
         var user = userRepository.findByUsernameIgnoreCase(req.getUsername())
                 .orElseThrow(() -> new NotFoundException("Username not found"));
         var isMatched = passwordEncoder.matches(req.getPassword(), user.getPassword());

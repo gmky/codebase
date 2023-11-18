@@ -14,6 +14,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.Instant;
 import java.util.Set;
@@ -33,6 +34,7 @@ public class User extends AbstractAuditEntity {
     @Column(name = "EMAIL")
     private String email;
 
+    @ToString.Exclude
     @Column(name = "PASSWORD")
     private String password;
 

@@ -24,7 +24,6 @@ public class AuthResource implements AuthenticationApi {
 
     @Override
     public ResponseEntity<LoginResponse> login(LoginReq loginReq) {
-        log.info("Login with username: [{}]", loginReq.getUsername());
         var result = authService.login(loginReq);
         return ResponseEntity.ok(result);
     }
