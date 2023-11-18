@@ -41,6 +41,29 @@ paths:
           $ref: './common-type.yaml/#/components/responses/NotFoundException'
         500:
           $ref: './common-type.yaml/#/components/responses/InternalServerException'
+  /client-api/v1/auth/me:
+    get:
+      operationId: getCurrentUserInfo
+      description: Get current user info
+      tags:
+        - Authentication
+      responses:
+        200:
+          description: Current user detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        400:
+          $ref: './common-type.yaml/#/components/responses/BadRequestException'
+        401:
+          $ref: './common-type.yaml/#/components/responses/UnauthorizedException'
+        403:
+          $ref: './common-type.yaml/#/components/responses/ForbiddenException'
+        404:
+          $ref: './common-type.yaml/#/components/responses/NotFoundException'
+        500:
+          $ref: './common-type.yaml/#/components/responses/InternalServerException'
   /client-api/v1/users:
     get:
       operationId: getAllUsers

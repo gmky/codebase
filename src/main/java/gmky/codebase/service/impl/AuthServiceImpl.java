@@ -2,11 +2,15 @@ package gmky.codebase.service.impl;
 
 import gmky.codebase.api.model.LoginReq;
 import gmky.codebase.api.model.LoginResponse;
+import gmky.codebase.api.model.UserResponse;
+import gmky.codebase.exception.ForbiddenException;
 import gmky.codebase.exception.NotFoundException;
 import gmky.codebase.exception.UnauthorizedException;
+import gmky.codebase.mapper.UserMapper;
 import gmky.codebase.repository.UserRepository;
 import gmky.codebase.security.TokenProvider;
 import gmky.codebase.service.AuthService;
+import gmky.codebase.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,6 +25,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final TokenProvider tokenProvider;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
     @Override
     public LoginResponse login(LoginReq req) {
@@ -33,5 +38,13 @@ public class AuthServiceImpl implements AuthService {
         var result = new LoginResponse();
         result.setAccessToken(accessToken);
         return result;
+    }
+
+    @Override
+    public UserResponse me() {
+        var currentUsername = SecurityUtil.getCurrentUsername();
+        var currentUser = userRepository.findByUsernameIgnoreCase(currentUsername)
+                .orElseThrow(() -> new ForbiddenException("Access Denied"));
+        return userMapper.toDto(currentUser);
     }
 }
