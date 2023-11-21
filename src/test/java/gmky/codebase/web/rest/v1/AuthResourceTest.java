@@ -22,6 +22,7 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standal
 class AuthResourceTest {
     private static final String LOGIN_URI = "/client-api/v1/auth/login";
     private static final String PROFILE_URI = "/client-api/v1/auth/me";
+    private static final String SUMMARY_URI = "/client-api/v1/auth/summary";
     private static final String USERNAME = "admin";
     private static final String PASSWORD = "b15dcpt082";
 
@@ -52,6 +53,14 @@ class AuthResourceTest {
     @DisplayName("Get profile should OK")
     void testMe_shouldOK() throws Exception {
         mockMvc.perform(get(PROFILE_URI)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Get summary should OK")
+    void testSummary_shouldOK() throws Exception {
+        mockMvc.perform(get(SUMMARY_URI)
                 .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(status().isOk());
     }
