@@ -5,7 +5,9 @@ import gmky.codebase.api.model.UserResponse;
 import gmky.codebase.exception.ForbiddenException;
 import gmky.codebase.exception.NotFoundException;
 import gmky.codebase.exception.UnauthorizedException;
+import gmky.codebase.mapper.FunctionPrivilegeMapper;
 import gmky.codebase.mapper.UserMapper;
+import gmky.codebase.model.entity.JobRole;
 import gmky.codebase.model.entity.User;
 import gmky.codebase.repository.UserRepository;
 import gmky.codebase.security.TokenProvider;
@@ -22,8 +24,12 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
@@ -41,6 +47,9 @@ class AuthServiceTest {
 
     @Mock
     PasswordEncoder passwordEncoder;
+
+    @Mock
+    FunctionPrivilegeMapper functionPrivilegeMapper;
 
     @InjectMocks
     AuthServiceImpl authService;
@@ -98,10 +107,42 @@ class AuthServiceTest {
         }
     }
 
+    @Test
+    @DisplayName("Get summary should return data")
+    void testSummary_shouldOK() {
+        try (MockedStatic<SecurityUtil> util = Mockito.mockStatic(SecurityUtil.class)) {
+            var user = mockUser();
+            util.when(SecurityUtil::getCurrentUsername).thenReturn(USERNAME);
+            Mockito.when(userRepository.findByUsernameIgnoreCase(USERNAME)).thenReturn(Optional.of(user));
+            Mockito.when(functionPrivilegeMapper.toSummary(Mockito.any())).thenReturn(List.of());
+            var result = authService.summary();
+            Assertions.assertThat(result).isNotNull();
+        }
+    }
+
+    @Test
+    @DisplayName("Get summary should throw AccessDeniedException")
+    void testSummary_shouldThrowAccessDeniedException() {
+        try (MockedStatic<SecurityUtil> util = Mockito.mockStatic(SecurityUtil.class)) {
+            util.when(SecurityUtil::getCurrentUsername).thenReturn(USERNAME);
+            Mockito.when(userRepository.findByUsernameIgnoreCase(USERNAME)).thenReturn(Optional.empty());
+            Assertions.assertThatThrownBy(() -> authService.summary()).isInstanceOf(ForbiddenException.class);
+        }
+    }
+
     private User mockUser() {
         var user = new User();
         user.setUsername(USERNAME);
         user.setEmail(EMAIL);
+        user.setJobRoles(Set.of(mockJobRole()));
         return user;
+    }
+
+    private JobRole mockJobRole() {
+        var jobRole = new JobRole();
+        jobRole.setStartAt(Instant.now().minusSeconds(5000));
+        jobRole.setEndAt(Instant.now().plus(50, ChronoUnit.MINUTES));
+        jobRole.setFunctionPrivileges(Set.of());
+        return jobRole;
     }
 }
