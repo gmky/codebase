@@ -4,6 +4,8 @@ import gmky.codebase.api.model.LoginReq;
 import gmky.codebase.api.model.LoginResponse;
 import gmky.codebase.api.model.SummaryResponse;
 import gmky.codebase.api.model.UserResponse;
+import gmky.codebase.enumeration.MailTypeEnum;
+import gmky.codebase.event.SendMailEvent;
 import gmky.codebase.exception.ForbiddenException;
 import gmky.codebase.exception.NotFoundException;
 import gmky.codebase.exception.UnauthorizedException;
@@ -18,6 +20,7 @@ import gmky.codebase.service.AuthService;
 import gmky.codebase.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +28,11 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+
+import static gmky.codebase.enumeration.ExceptionEnum.ACCESS_DENIED;
+import static gmky.codebase.enumeration.ExceptionEnum.AUTH_INVALID_DATA;
+import static gmky.codebase.enumeration.ExceptionEnum.USER_EMAIL_NOT_FOUND;
+import static gmky.codebase.enumeration.ExceptionEnum.USER_NOT_FOUND;
 
 @Slf4j
 @Service
@@ -35,13 +43,14 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final FunctionPrivilegeMapper functionPrivilegeMapper;
+    private final ApplicationEventPublisher appEventPublisher;
 
     @Override
     public LoginResponse login(LoginReq req) {
         var user = userRepository.findByUsernameIgnoreCase(req.getUsername())
-                .orElseThrow(() -> new NotFoundException("Username not found"));
+                .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
         var isMatched = passwordEncoder.matches(req.getPassword(), user.getPassword());
-        if (!isMatched) throw new UnauthorizedException("Username and password not match");
+        if (!isMatched) throw new UnauthorizedException(AUTH_INVALID_DATA);
         var accessToken = tokenProvider.generateToken(user.getUsername(), new HashMap<>());
         var result = new LoginResponse();
         result.setAccessToken(accessToken);
@@ -52,7 +61,7 @@ public class AuthServiceImpl implements AuthService {
     public UserResponse me() {
         var currentUsername = SecurityUtil.getCurrentUsername();
         var currentUser = userRepository.findByUsernameIgnoreCase(currentUsername)
-                .orElseThrow(() -> new ForbiddenException("Access Denied"));
+                .orElseThrow(() -> new ForbiddenException(ACCESS_DENIED));
         return userMapper.toDto(currentUser);
     }
 
@@ -60,9 +69,20 @@ public class AuthServiceImpl implements AuthService {
     public List<SummaryResponse> summary() {
         var username = SecurityUtil.getCurrentUsername();
         var user = userRepository.findByUsernameIgnoreCase(username)
-                .orElseThrow(() -> new ForbiddenException("Access Denied"));
+                .orElseThrow(() -> new ForbiddenException(ACCESS_DENIED));
         var allFunctionPrivileges = getAllFunctionPrivileges(user);
         return functionPrivilegeMapper.toSummary(allFunctionPrivileges);
+    }
+
+    @Override
+    public void forgotPassword(String email) {
+        var existed = userRepository.existsByEmailIgnoreCase(email);
+        if (!existed) throw new NotFoundException(USER_EMAIL_NOT_FOUND);
+        var sendMailEvent = SendMailEvent.builder()
+                .toAddresses(List.of(email))
+                .type(MailTypeEnum.FORGOT_PASSWORD)
+                .build();
+        appEventPublisher.publishEvent(sendMailEvent);
     }
 
     private List<FunctionPrivilege> getAllFunctionPrivileges(User user) {

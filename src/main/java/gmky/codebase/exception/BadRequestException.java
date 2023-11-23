@@ -1,10 +1,11 @@
 package gmky.codebase.exception;
 
+import gmky.codebase.enumeration.ExceptionEnum;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
-public class BadRequestException extends ResponseStatusException {
-    public BadRequestException(String reason) {
-        super(HttpStatus.BAD_REQUEST, reason);
+public class BadRequestException extends BaseException {
+    public BadRequestException(ExceptionEnum detail) {
+        super(HttpStatus.BAD_REQUEST, detail);
     }
+
 }

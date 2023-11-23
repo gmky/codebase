@@ -1,10 +1,10 @@
 package gmky.codebase.exception;
 
+import gmky.codebase.enumeration.ExceptionEnum;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
-public class UnauthorizedException extends ResponseStatusException {
-    public UnauthorizedException(String reason) {
-        super(HttpStatus.UNAUTHORIZED, reason);
+public class UnauthorizedException extends BaseException {
+    public UnauthorizedException(ExceptionEnum detail) {
+        super(HttpStatus.UNAUTHORIZED, detail);
     }
 }

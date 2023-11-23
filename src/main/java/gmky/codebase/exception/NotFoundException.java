@@ -1,10 +1,10 @@
 package gmky.codebase.exception;
 
+import gmky.codebase.enumeration.ExceptionEnum;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
-public class NotFoundException extends ResponseStatusException {
-    public NotFoundException(String reason) {
-        super(HttpStatus.NOT_FOUND, reason);
+public class NotFoundException extends BaseException {
+    public NotFoundException(ExceptionEnum detail) {
+        super(HttpStatus.NOT_FOUND, detail);
     }
 }
