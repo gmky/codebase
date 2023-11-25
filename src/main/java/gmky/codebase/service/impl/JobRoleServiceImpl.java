@@ -11,6 +11,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import static gmky.codebase.enumeration.ExceptionEnum.JOB_ROLE_NOT_FOUND;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -27,7 +29,7 @@ public class JobRoleServiceImpl implements JobRoleService {
     @Override
     public JobRoleResponse getJobRoleDetailById(Long id) {
         var jobRole = jobRoleRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Job role not found"));
+                .orElseThrow(() -> new NotFoundException(JOB_ROLE_NOT_FOUND));
         return jobRoleMapper.toDto(jobRole);
     }
 }

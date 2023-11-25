@@ -23,7 +23,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return problemDetail;
     }
 
-    @ExceptionHandler(ResponseStatusException.class)
+    @ExceptionHandler(BaseException.class)
     ProblemDetail handleResponseStatusException(ResponseStatusException exception, HttpServletRequest request) {
         var problemDetail = ProblemDetail.forStatusAndDetail(exception.getStatusCode(), exception.getMessage());
         problemDetail.setType(URI.create(request.getRequestURI()));

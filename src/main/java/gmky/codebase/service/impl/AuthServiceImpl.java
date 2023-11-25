@@ -26,6 +26,10 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import static gmky.codebase.enumeration.ExceptionEnum.ACCESS_DENIED;
+import static gmky.codebase.enumeration.ExceptionEnum.LOGIN_INFO_NOT_MATCH;
+import static gmky.codebase.enumeration.ExceptionEnum.USERNAME_NOT_FOUND;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -39,9 +43,9 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public LoginResponse login(LoginReq req) {
         var user = userRepository.findByUsernameIgnoreCase(req.getUsername())
-                .orElseThrow(() -> new NotFoundException("Username not found"));
+                .orElseThrow(() -> new NotFoundException(USERNAME_NOT_FOUND));
         var isMatched = passwordEncoder.matches(req.getPassword(), user.getPassword());
-        if (!isMatched) throw new UnauthorizedException("Username and password not match");
+        if (!isMatched) throw new UnauthorizedException(LOGIN_INFO_NOT_MATCH);
         var accessToken = tokenProvider.generateToken(user.getUsername(), new HashMap<>());
         var result = new LoginResponse();
         result.setAccessToken(accessToken);
@@ -52,7 +56,7 @@ public class AuthServiceImpl implements AuthService {
     public UserResponse me() {
         var currentUsername = SecurityUtil.getCurrentUsername();
         var currentUser = userRepository.findByUsernameIgnoreCase(currentUsername)
-                .orElseThrow(() -> new ForbiddenException("Access Denied"));
+                .orElseThrow(() -> new ForbiddenException(ACCESS_DENIED));
         return userMapper.toDto(currentUser);
     }
 
@@ -60,7 +64,7 @@ public class AuthServiceImpl implements AuthService {
     public List<SummaryResponse> summary() {
         var username = SecurityUtil.getCurrentUsername();
         var user = userRepository.findByUsernameIgnoreCase(username)
-                .orElseThrow(() -> new ForbiddenException("Access Denied"));
+                .orElseThrow(() -> new ForbiddenException(ACCESS_DENIED));
         var allFunctionPrivileges = getAllFunctionPrivileges(user);
         return functionPrivilegeMapper.toSummary(allFunctionPrivileges);
     }

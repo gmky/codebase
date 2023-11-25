@@ -1,10 +1,10 @@
 package gmky.codebase.exception;
 
+import gmky.codebase.enumeration.ExceptionEnum;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
-public class ForbiddenException extends ResponseStatusException {
-    public ForbiddenException(String reason) {
-        super(HttpStatus.FORBIDDEN, reason);
+public class ForbiddenException extends BaseException {
+    public ForbiddenException(ExceptionEnum detail) {
+        super(HttpStatus.FORBIDDEN, detail);
     }
 }
