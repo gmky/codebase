@@ -26,6 +26,15 @@ spring:
   liquibase:
     enabled: true
     change-log: db/changelog-master.xml
+  mail:
+    host: sandbox.smtp.mailtrap.io
+    port: 2525
+    username: ff748bf9b77b0e
+    password: 82d4a4d96ea499
+    properties:
+      from: ${CB_EMAIL_FROM:admin@gmky.dev}
+      name: ${CB_EMAIL_NAME:${spring.application.name}}
+      signature: CodeBase Team
 application:
   security:
     base64-secret: ${SPRING_SECURITY_BASE64_SECRET:Rm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uRm9yRGV2T25seURvTm90VXNlSW5Qcm9kdWN0aW9uCg==}
