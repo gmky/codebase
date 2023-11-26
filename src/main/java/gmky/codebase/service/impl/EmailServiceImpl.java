@@ -37,7 +37,7 @@ public class EmailServiceImpl implements EmailService {
         try {
             var msgHelper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
             msgHelper.setFrom(from, name);
-            msgHelper.setSubject(req.getTemplate());
+            msgHelper.setSubject(req.getSubject());
             msgHelper.setTo(toArray(req.getTo()));
             msgHelper.setCc(toArray(req.getCc()));
             msgHelper.setBcc(toArray(req.getBcc()));

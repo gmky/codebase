@@ -20,6 +20,12 @@ public class AuthResource implements AuthenticationApi {
     private final AuthService authService;
 
     @Override
+    public ResponseEntity<Void> forgotPassword(String email) {
+        authService.forgotPassword(email);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Override
     public ResponseEntity<UserResponse> getCurrentUserInfo() {
         var result = authService.me();
         return ResponseEntity.ok(result);
