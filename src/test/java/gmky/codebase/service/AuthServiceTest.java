@@ -9,6 +9,7 @@ import gmky.codebase.mapper.FunctionPrivilegeMapper;
 import gmky.codebase.mapper.UserMapper;
 import gmky.codebase.model.entity.JobRole;
 import gmky.codebase.model.entity.User;
+import gmky.codebase.model.event.EmailEvent;
 import gmky.codebase.repository.UserRepository;
 import gmky.codebase.security.TokenProvider;
 import gmky.codebase.service.impl.AuthServiceImpl;
@@ -22,6 +23,7 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.Instant;
@@ -36,6 +38,7 @@ class AuthServiceTest {
     private static final String USERNAME = "admin";
     private static final String RAW_PASSWORD = "b15dcpt082";
     private static final String EMAIL = "admin@gmky.dev";
+    private static final String FULL_NAME = "Vu Hoang Hiep";
     @Mock
     UserMapper userMapper;
 
@@ -50,6 +53,9 @@ class AuthServiceTest {
 
     @Mock
     FunctionPrivilegeMapper functionPrivilegeMapper;
+
+    @Mock
+    ApplicationEventPublisher appEventPublisher;
 
     @InjectMocks
     AuthServiceImpl authService;
@@ -130,10 +136,27 @@ class AuthServiceTest {
         }
     }
 
+    @Test
+    @DisplayName("Forgot password should throw NotFoundException")
+    void testForgotPassword_shouldThrowNotFoundException() {
+        Mockito.when(userRepository.findByEmailIgnoreCase(EMAIL)).thenReturn(Optional.empty());
+        Assertions.assertThatThrownBy(() -> authService.forgotPassword(EMAIL)).isInstanceOf(NotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("Forgot password should OK")
+    void testForgotPassword_shouldOK() {
+        Mockito.when(userRepository.findByEmailIgnoreCase(EMAIL)).thenReturn(Optional.of(mockUser()));
+        Mockito.doNothing().when(appEventPublisher).publishEvent(Mockito.any(EmailEvent.class));
+        authService.forgotPassword(EMAIL);
+        Mockito.verify(appEventPublisher, Mockito.times(1)).publishEvent(Mockito.any(EmailEvent.class));
+    }
+
     private User mockUser() {
         var user = new User();
         user.setUsername(USERNAME);
         user.setEmail(EMAIL);
+        user.setFullName(FULL_NAME);
         user.setJobRoles(Set.of(mockJobRole()));
         return user;
     }

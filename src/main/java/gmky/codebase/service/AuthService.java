@@ -13,4 +13,6 @@ public interface AuthService {
     UserResponse me();
 
     List<SummaryResponse> summary();
+
+    void forgotPassword(String email);
 }

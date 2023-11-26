@@ -4,6 +4,7 @@ import gmky.codebase.api.model.LoginReq;
 import gmky.codebase.api.model.LoginResponse;
 import gmky.codebase.api.model.SummaryResponse;
 import gmky.codebase.api.model.UserResponse;
+import gmky.codebase.enumeration.EmailTypeEnum;
 import gmky.codebase.exception.ForbiddenException;
 import gmky.codebase.exception.NotFoundException;
 import gmky.codebase.exception.UnauthorizedException;
@@ -12,12 +13,14 @@ import gmky.codebase.mapper.UserMapper;
 import gmky.codebase.model.entity.FunctionPrivilege;
 import gmky.codebase.model.entity.JobRole;
 import gmky.codebase.model.entity.User;
+import gmky.codebase.model.event.EmailEvent;
 import gmky.codebase.repository.UserRepository;
 import gmky.codebase.security.TokenProvider;
 import gmky.codebase.service.AuthService;
 import gmky.codebase.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,10 +28,14 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static gmky.codebase.enumeration.ExceptionEnum.ACCESS_DENIED;
 import static gmky.codebase.enumeration.ExceptionEnum.LOGIN_INFO_NOT_MATCH;
 import static gmky.codebase.enumeration.ExceptionEnum.USERNAME_NOT_FOUND;
+import static gmky.codebase.enumeration.ExceptionEnum.USER_NOT_FOUND;
+import static gmky.codebase.handler.builder.ForgotPasswordEmailBuilder.EMAIL_KEY;
+import static gmky.codebase.handler.builder.ForgotPasswordEmailBuilder.FULL_NAME_KEY;
 
 @Slf4j
 @Service
@@ -39,6 +46,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
     private final FunctionPrivilegeMapper functionPrivilegeMapper;
+    private final ApplicationEventPublisher appEventPublisher;
 
     @Override
     public LoginResponse login(LoginReq req) {
@@ -67,6 +75,16 @@ public class AuthServiceImpl implements AuthService {
                 .orElseThrow(() -> new ForbiddenException(ACCESS_DENIED));
         var allFunctionPrivileges = getAllFunctionPrivileges(user);
         return functionPrivilegeMapper.toSummary(allFunctionPrivileges);
+    }
+
+    @Override
+    public void forgotPassword(String email) {
+        var user = userRepository.findByEmailIgnoreCase(email)
+                .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
+        var event = new EmailEvent();
+        event.setEmailType(EmailTypeEnum.FORGOT_PASSWORD);
+        event.setParams(Map.of(EMAIL_KEY, email, FULL_NAME_KEY, user.getFullName()));
+        appEventPublisher.publishEvent(event);
     }
 
     private List<FunctionPrivilege> getAllFunctionPrivileges(User user) {
