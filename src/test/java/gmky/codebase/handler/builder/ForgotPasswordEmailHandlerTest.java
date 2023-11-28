@@ -1,7 +1,7 @@
 package gmky.codebase.handler.builder;
 
 import gmky.codebase.enumeration.EmailTypeEnum;
-import gmky.codebase.model.event.EmailEvent;
+import gmky.codebase.model.event.ForgotPasswordEmailEvent;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,9 +10,6 @@ import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
-import java.util.Map;
-
-import static gmky.codebase.handler.builder.ForgotPasswordEmailBuilder.EMAIL_KEY;
 
 @ExtendWith(MockitoExtension.class)
 class ForgotPasswordEmailHandlerTest {
@@ -37,10 +34,10 @@ class ForgotPasswordEmailHandlerTest {
         Assertions.assertThat(result).isTrue();
     }
 
-    private EmailEvent mockEvent() {
-        var event = new EmailEvent();
-        event.setEmailType(EmailTypeEnum.FORGOT_PASSWORD);
-        event.setParams(Map.of(EMAIL_KEY, EMAIL));
-        return event;
+    private ForgotPasswordEmailEvent mockEvent() {
+        return ForgotPasswordEmailEvent.builder()
+                .email(EMAIL)
+                .emailType(EmailTypeEnum.FORGOT_PASSWORD)
+                .build();
     }
 }

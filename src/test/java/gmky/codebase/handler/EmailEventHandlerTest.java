@@ -4,6 +4,8 @@ import gmky.codebase.enumeration.EmailTypeEnum;
 import gmky.codebase.handler.builder.EmailRequestBuilder;
 import gmky.codebase.handler.builder.ForgotPasswordEmailBuilder;
 import gmky.codebase.model.event.EmailEvent;
+import gmky.codebase.model.event.EnvelopedEvent;
+import gmky.codebase.model.event.ForgotPasswordEmailEvent;
 import gmky.codebase.service.impl.EmailServiceImpl;
 import org.apache.commons.lang3.NotImplementedException;
 import org.assertj.core.api.Assertions;
@@ -19,7 +21,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @ExtendWith(MockitoExtension.class)
 class EmailEventHandlerTest {
@@ -43,19 +44,23 @@ class EmailEventHandlerTest {
     @Test
     @DisplayName("Handle event should OK")
     void testHandleEvent_shouldOK() {
-        var event = new EmailEvent();
+        var event = ForgotPasswordEmailEvent.builder().emailType(EmailTypeEnum.FORGOT_PASSWORD).build();
         event.setEmailType(EmailTypeEnum.FORGOT_PASSWORD);
-        event.setParams(Map.of());
+        event.setEmail("admin@gmky.dev");
+        var envelopedEvent = new EnvelopedEvent<EmailEvent>(event);
+        envelopedEvent.setEvent(event);
         Mockito.doNothing().when(emailService).sendMailWithTemplate(Mockito.any());
-        emailEventHandler.handle(event);
+        emailEventHandler.handle(envelopedEvent);
         Mockito.verify(emailService, Mockito.times(1)).sendMailWithTemplate(Mockito.any());
     }
 
     @Test
     @DisplayName("Handle event should throw NotImplemented")
     void testHandleEvent_shouldThrowNotImplemented() {
-        var event = new EmailEvent();
+        var event = EmailEvent.builder().build();
         event.setEmailType(null);
-        Assertions.assertThatThrownBy(() -> emailEventHandler.handle(event)).isInstanceOf(NotImplementedException.class);
+        var envelopedEvent = new EnvelopedEvent<>(event);
+        envelopedEvent.setEvent(event);
+        Assertions.assertThatThrownBy(() -> emailEventHandler.handle(envelopedEvent)).isInstanceOf(NotImplementedException.class);
     }
 }
