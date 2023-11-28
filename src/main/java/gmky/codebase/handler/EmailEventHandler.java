@@ -2,6 +2,7 @@ package gmky.codebase.handler;
 
 import gmky.codebase.handler.builder.EmailRequestBuilder;
 import gmky.codebase.model.event.EmailEvent;
+import gmky.codebase.model.event.EnvelopedEvent;
 import gmky.codebase.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,9 +22,10 @@ public class EmailEventHandler implements EventHandler<EmailEvent> {
 
     @Async
     @Override
-    @EventListener(EmailEvent.class)
-    public void handle(EmailEvent event) {
-        log.info("Received email event: {}", event.getId());
+    @EventListener(EnvelopedEvent.class)
+    public void handle(EnvelopedEvent<EmailEvent> envelopedEvent) {
+        log.info("Received email event: {}", envelopedEvent.getId());
+        var event = envelopedEvent.getEvent();
         var builder = getBuilder(event);
         var emailReq = builder.build(event);
         emailService.sendMailWithTemplate(emailReq);

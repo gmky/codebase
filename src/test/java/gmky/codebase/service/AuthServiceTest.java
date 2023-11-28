@@ -9,7 +9,7 @@ import gmky.codebase.mapper.FunctionPrivilegeMapper;
 import gmky.codebase.mapper.UserMapper;
 import gmky.codebase.model.entity.JobRole;
 import gmky.codebase.model.entity.User;
-import gmky.codebase.model.event.EmailEvent;
+import gmky.codebase.model.event.EnvelopedEvent;
 import gmky.codebase.repository.UserRepository;
 import gmky.codebase.security.TokenProvider;
 import gmky.codebase.service.impl.AuthServiceImpl;
@@ -147,9 +147,9 @@ class AuthServiceTest {
     @DisplayName("Forgot password should OK")
     void testForgotPassword_shouldOK() {
         Mockito.when(userRepository.findByEmailIgnoreCase(EMAIL)).thenReturn(Optional.of(mockUser()));
-        Mockito.doNothing().when(appEventPublisher).publishEvent(Mockito.any(EmailEvent.class));
+        Mockito.doNothing().when(appEventPublisher).publishEvent(Mockito.any(EnvelopedEvent.class));
         authService.forgotPassword(EMAIL);
-        Mockito.verify(appEventPublisher, Mockito.times(1)).publishEvent(Mockito.any(EmailEvent.class));
+        Mockito.verify(appEventPublisher, Mockito.times(1)).publishEvent(Mockito.any(EnvelopedEvent.class));
     }
 
     private User mockUser() {

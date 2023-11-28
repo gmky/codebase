@@ -13,7 +13,8 @@ import gmky.codebase.mapper.UserMapper;
 import gmky.codebase.model.entity.FunctionPrivilege;
 import gmky.codebase.model.entity.JobRole;
 import gmky.codebase.model.entity.User;
-import gmky.codebase.model.event.EmailEvent;
+import gmky.codebase.model.event.EnvelopedEvent;
+import gmky.codebase.model.event.ForgotPasswordEmailEvent;
 import gmky.codebase.repository.UserRepository;
 import gmky.codebase.security.TokenProvider;
 import gmky.codebase.service.AuthService;
@@ -28,14 +29,11 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static gmky.codebase.enumeration.ExceptionEnum.ACCESS_DENIED;
 import static gmky.codebase.enumeration.ExceptionEnum.LOGIN_INFO_NOT_MATCH;
 import static gmky.codebase.enumeration.ExceptionEnum.USERNAME_NOT_FOUND;
 import static gmky.codebase.enumeration.ExceptionEnum.USER_NOT_FOUND;
-import static gmky.codebase.handler.builder.ForgotPasswordEmailBuilder.EMAIL_KEY;
-import static gmky.codebase.handler.builder.ForgotPasswordEmailBuilder.FULL_NAME_KEY;
 
 @Slf4j
 @Service
@@ -81,10 +79,15 @@ public class AuthServiceImpl implements AuthService {
     public void forgotPassword(String email) {
         var user = userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
-        var event = new EmailEvent();
-        event.setEmailType(EmailTypeEnum.FORGOT_PASSWORD);
-        event.setParams(Map.of(EMAIL_KEY, email, FULL_NAME_KEY, user.getFullName()));
-        appEventPublisher.publishEvent(event);
+        var event = ForgotPasswordEmailEvent.builder()
+                .emailType(EmailTypeEnum.FORGOT_PASSWORD)
+                .userId(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .build();
+        var envelopedEvent = new EnvelopedEvent<>(event);
+        appEventPublisher.publishEvent(envelopedEvent);
     }
 
     private List<FunctionPrivilege> getAllFunctionPrivileges(User user) {
