@@ -44,9 +44,7 @@ class EmailEventHandlerTest {
     @Test
     @DisplayName("Handle event should OK")
     void testHandleEvent_shouldOK() {
-        var event = ForgotPasswordEmailEvent.builder().emailType(EmailTypeEnum.FORGOT_PASSWORD).build();
-        event.setEmailType(EmailTypeEnum.FORGOT_PASSWORD);
-        event.setEmail("admin@gmky.dev");
+        var event = ForgotPasswordEmailEvent.builder().email("admin@gmky.dev").emailType(EmailTypeEnum.FORGOT_PASSWORD).build();
         var envelopedEvent = new EnvelopedEvent<EmailEvent>(event);
         envelopedEvent.setEvent(event);
         Mockito.doNothing().when(emailService).sendMailWithTemplate(Mockito.any());
@@ -58,7 +56,6 @@ class EmailEventHandlerTest {
     @DisplayName("Handle event should throw NotImplemented")
     void testHandleEvent_shouldThrowNotImplemented() {
         var event = EmailEvent.builder().build();
-        event.setEmailType(null);
         var envelopedEvent = new EnvelopedEvent<>(event);
         envelopedEvent.setEvent(event);
         Assertions.assertThatThrownBy(() -> emailEventHandler.handle(envelopedEvent)).isInstanceOf(NotImplementedException.class);

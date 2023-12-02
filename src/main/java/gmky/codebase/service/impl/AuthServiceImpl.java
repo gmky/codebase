@@ -2,9 +2,12 @@ package gmky.codebase.service.impl;
 
 import gmky.codebase.api.model.LoginReq;
 import gmky.codebase.api.model.LoginResponse;
+import gmky.codebase.api.model.RegisterUserReq;
 import gmky.codebase.api.model.SummaryResponse;
 import gmky.codebase.api.model.UserResponse;
 import gmky.codebase.enumeration.EmailTypeEnum;
+import gmky.codebase.enumeration.UserStatusEnum;
+import gmky.codebase.exception.BadRequestException;
 import gmky.codebase.exception.ForbiddenException;
 import gmky.codebase.exception.NotFoundException;
 import gmky.codebase.exception.UnauthorizedException;
@@ -13,6 +16,7 @@ import gmky.codebase.mapper.UserMapper;
 import gmky.codebase.model.entity.FunctionPrivilege;
 import gmky.codebase.model.entity.JobRole;
 import gmky.codebase.model.entity.User;
+import gmky.codebase.model.event.AccountActivationEmailEvent;
 import gmky.codebase.model.event.EnvelopedEvent;
 import gmky.codebase.model.event.ForgotPasswordEmailEvent;
 import gmky.codebase.repository.UserRepository;
@@ -24,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.Collection;
@@ -31,7 +36,10 @@ import java.util.HashMap;
 import java.util.List;
 
 import static gmky.codebase.enumeration.ExceptionEnum.ACCESS_DENIED;
+import static gmky.codebase.enumeration.ExceptionEnum.EMAIL_EXISTED;
+import static gmky.codebase.enumeration.ExceptionEnum.INVALID_STATUS;
 import static gmky.codebase.enumeration.ExceptionEnum.LOGIN_INFO_NOT_MATCH;
+import static gmky.codebase.enumeration.ExceptionEnum.USERNAME_EXISTED;
 import static gmky.codebase.enumeration.ExceptionEnum.USERNAME_NOT_FOUND;
 import static gmky.codebase.enumeration.ExceptionEnum.USER_NOT_FOUND;
 
@@ -55,6 +63,7 @@ public class AuthServiceImpl implements AuthService {
         var accessToken = tokenProvider.generateToken(user.getUsername(), new HashMap<>());
         var result = new LoginResponse();
         result.setAccessToken(accessToken);
+        log.info("[{}][{}] Logged in successfully", user.getId(), user.getUsername());
         return result;
     }
 
@@ -79,15 +88,24 @@ public class AuthServiceImpl implements AuthService {
     public void forgotPassword(String email) {
         var user = userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
-        var event = ForgotPasswordEmailEvent.builder()
-                .emailType(EmailTypeEnum.FORGOT_PASSWORD)
-                .userId(user.getId())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .fullName(user.getFullName())
-                .build();
-        var envelopedEvent = new EnvelopedEvent<>(event);
-        appEventPublisher.publishEvent(envelopedEvent);
+        if (!UserStatusEnum.ACTIVE.equals(user.getStatus()))
+            throw new ForbiddenException(INVALID_STATUS);
+        sendForgotPasswordEmail(user);
+        log.info("[{}][{}] forgot password successfully", user.getId(), user.getEmail());
+    }
+
+    @Override
+    @Transactional
+    public UserResponse register(RegisterUserReq req) {
+        boolean existed = userRepository.existsByUsernameIgnoreCase(req.getUsername());
+        if (existed) throw new BadRequestException(USERNAME_EXISTED);
+        existed = userRepository.existsByEmailIgnoreCase(req.getEmail());
+        if (existed) throw new BadRequestException(EMAIL_EXISTED);
+        var user = userMapper.toEntity(req);
+        user = userRepository.save(user);
+        sendAccountActivationEmail(user);
+        log.info("[{}][{}] Registered successfully", user.getId(), user.getUsername());
+        return userMapper.toDto(user);
     }
 
     private List<FunctionPrivilege> getAllFunctionPrivileges(User user) {
@@ -102,5 +120,31 @@ public class AuthServiceImpl implements AuthService {
     private boolean isNotExpired(JobRole jobRole) {
         var now = Instant.now();
         return now.isAfter(jobRole.getStartAt()) && now.isBefore(jobRole.getEndAt());
+    }
+
+    private void sendAccountActivationEmail(User user) {
+        log.info("[{}][{}] Send account activation email", user.getId(), user.getEmail());
+        var event = AccountActivationEmailEvent.builder()
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .emailType(EmailTypeEnum.ACCOUNT_ACTIVATION)
+                .build();
+        var envelopedEvent = new EnvelopedEvent<>(event);
+        appEventPublisher.publishEvent(envelopedEvent);
+        log.info("[{}][{}] Send account activation email successfully", user.getId(), user.getEmail());
+    }
+
+    private void sendForgotPasswordEmail(User user) {
+        log.info("[{}][{}] Send forgot password email", user.getId(), user.getEmail());
+        var event = ForgotPasswordEmailEvent.builder()
+                .emailType(EmailTypeEnum.FORGOT_PASSWORD)
+                .userId(user.getId())
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .build();
+        var envelopedEvent = new EnvelopedEvent<>(event);
+        appEventPublisher.publishEvent(envelopedEvent);
+        log.info("[{}][{}] Send forgot password email successfully", user.getId(), user.getEmail());
     }
 }

@@ -12,11 +12,13 @@ import java.util.List;
 @Slf4j
 @Component
 public class ForgotPasswordEmailBuilder implements EmailRequestBuilder<ForgotPasswordEmailEvent> {
+    private static final String EMAIL_KEY = "email";
+    private static final String FULL_NAME_KEY = "fullName";
     @Override
     public SendEmailReq build(ForgotPasswordEmailEvent event) {
         var context = new HashMap<String, Object>();
-        context.put("email", event.getEmail());
-        context.put("fullName", event.getFullName());
+        context.put(EMAIL_KEY, event.getEmail());
+        context.put(FULL_NAME_KEY, event.getFullName());
         return SendEmailReq.builder()
                 .subject(event.getEmailType().getSubject())
                 .template(event.getEmailType().getTemplate())

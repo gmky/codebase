@@ -2,6 +2,7 @@ package gmky.codebase.web.rest.v1;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import gmky.codebase.api.model.LoginReq;
+import gmky.codebase.api.model.RegisterUserReq;
 import gmky.codebase.service.impl.AuthServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,6 +25,7 @@ class AuthResourceTest {
     private static final String PROFILE_URI = "/client-api/v1/auth/me";
     private static final String SUMMARY_URI = "/client-api/v1/auth/summary";
     private static final String FORGOT_PASSWORD_URI = "/client-api/v1/forgot-password";
+    private static final String REGISTER_URI = "/client-api/v1/register";
     private static final String USERNAME = "admin";
     private static final String PASSWORD = "b15dcpt082";
 
@@ -73,6 +75,18 @@ class AuthResourceTest {
                         .queryParam("email", "admin@gmky.dev")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("Register should OK")
+    void testRegister_shouldOK() throws Exception {
+        var reqBody = (new RegisterUserReq())
+                .username("gmkyx2").email("gmky@gmky.dev")
+                .password("b15dcpt082").fullName("Vu Hoang Hiep");
+        mockMvc.perform(post(REGISTER_URI)
+                        .content(objectMapper.writeValueAsString(reqBody))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 
     private LoginReq mockLoginReq() {

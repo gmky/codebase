@@ -1,7 +1,10 @@
 package gmky.codebase.service;
 
 import gmky.codebase.api.model.LoginReq;
+import gmky.codebase.api.model.RegisterUserReq;
 import gmky.codebase.api.model.UserResponse;
+import gmky.codebase.enumeration.UserStatusEnum;
+import gmky.codebase.exception.BadRequestException;
 import gmky.codebase.exception.ForbiddenException;
 import gmky.codebase.exception.NotFoundException;
 import gmky.codebase.exception.UnauthorizedException;
@@ -18,6 +21,8 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
@@ -35,7 +40,7 @@ import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
-    private static final String USERNAME = "admin";
+    private static final String USERNAME = "admin1234";
     private static final String RAW_PASSWORD = "b15dcpt082";
     private static final String EMAIL = "admin@gmky.dev";
     private static final String FULL_NAME = "Vu Hoang Hiep";
@@ -63,7 +68,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("Login should OK")
     void login_shouldReturnToken() {
-        var user = mockUser();
+        var user = mockUser(UserStatusEnum.ACTIVE);
         Mockito.when(userRepository.findByUsernameIgnoreCase(USERNAME)).thenReturn(Optional.of(user));
         Mockito.when(passwordEncoder.matches(RAW_PASSWORD, user.getPassword())).thenReturn(true);
         Mockito.when(tokenProvider.generateToken(USERNAME, new HashMap<>())).thenReturn("abc");
@@ -83,7 +88,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("Login should throw UnauthorizedException")
     void testLogin_shouldThrowUnauthorizedException() {
-        var user = mockUser();
+        var user = mockUser(UserStatusEnum.ACTIVE);
         var req = (new LoginReq()).username(USERNAME).password(RAW_PASSWORD);
         Mockito.when(userRepository.findByUsernameIgnoreCase(USERNAME)).thenReturn(Optional.of(user));
         Mockito.when(passwordEncoder.matches(RAW_PASSWORD, user.getPassword())).thenReturn(false);
@@ -104,7 +109,7 @@ class AuthServiceTest {
     @DisplayName("Get profile should return data")
     void testMe_shouldOK() {
         try (MockedStatic<SecurityUtil> util = Mockito.mockStatic(SecurityUtil.class)) {
-            var user = mockUser();
+            var user = mockUser(UserStatusEnum.ACTIVE);
             util.when(SecurityUtil::getCurrentUsername).thenReturn(USERNAME);
             Mockito.when(userRepository.findByUsernameIgnoreCase(USERNAME)).thenReturn(Optional.of(user));
             Mockito.when(userMapper.toDto(user)).thenReturn(new UserResponse());
@@ -117,7 +122,7 @@ class AuthServiceTest {
     @DisplayName("Get summary should return data")
     void testSummary_shouldOK() {
         try (MockedStatic<SecurityUtil> util = Mockito.mockStatic(SecurityUtil.class)) {
-            var user = mockUser();
+            var user = mockUser(UserStatusEnum.ACTIVE);
             util.when(SecurityUtil::getCurrentUsername).thenReturn(USERNAME);
             Mockito.when(userRepository.findByUsernameIgnoreCase(USERNAME)).thenReturn(Optional.of(user));
             Mockito.when(functionPrivilegeMapper.toSummary(Mockito.any())).thenReturn(List.of());
@@ -136,6 +141,14 @@ class AuthServiceTest {
         }
     }
 
+    @ParameterizedTest
+    @EnumSource(value = UserStatusEnum.class, names = {"PENDING", "IN_ACTIVE"})
+    @DisplayName("Forgot password should throw ForbiddenException when status is not active")
+    void testForgotPassword_shouldThrowForbiddenException_whenStatusIsNotActive(UserStatusEnum status) {
+        Mockito.when(userRepository.findByEmailIgnoreCase(EMAIL)).thenReturn(Optional.of(mockUser(status)));
+        Assertions.assertThatThrownBy(() -> authService.forgotPassword(EMAIL)).isInstanceOf(ForbiddenException.class);
+    }
+
     @Test
     @DisplayName("Forgot password should throw NotFoundException")
     void testForgotPassword_shouldThrowNotFoundException() {
@@ -146,17 +159,51 @@ class AuthServiceTest {
     @Test
     @DisplayName("Forgot password should OK")
     void testForgotPassword_shouldOK() {
-        Mockito.when(userRepository.findByEmailIgnoreCase(EMAIL)).thenReturn(Optional.of(mockUser()));
+        Mockito.when(userRepository.findByEmailIgnoreCase(EMAIL)).thenReturn(Optional.of(mockUser(UserStatusEnum.ACTIVE)));
         Mockito.doNothing().when(appEventPublisher).publishEvent(Mockito.any(EnvelopedEvent.class));
         authService.forgotPassword(EMAIL);
         Mockito.verify(appEventPublisher, Mockito.times(1)).publishEvent(Mockito.any(EnvelopedEvent.class));
     }
 
-    private User mockUser() {
+    @Test
+    @DisplayName("Register should throw BadRequest when username existed")
+    void testRegister_shouldThrowBadRequestException_whenUsernameExisted() {
+        var req = mockRegisterReq();
+        Mockito.when(userRepository.existsByUsernameIgnoreCase(USERNAME)).thenReturn(true);
+        Assertions.assertThatThrownBy(() -> authService.register(req)).isInstanceOf(BadRequestException.class);
+    }
+
+    @Test
+    @DisplayName("Register should throw BadRequest when username existed")
+    void testRegister_shouldThrowBadRequestException_whenEmailExisted() {
+        var req = mockRegisterReq();
+        Mockito.when(userRepository.existsByEmailIgnoreCase(EMAIL)).thenReturn(true);
+        Assertions.assertThatThrownBy(() -> authService.register(req)).isInstanceOf(BadRequestException.class);
+    }
+
+    @Test
+    @DisplayName("Register should OK")
+    void testRegister_shouldOK() {
+        var req = mockRegisterReq();
+        var user = mockUser(UserStatusEnum.ACTIVE);
+        var res = mockUserResponse();
+        Mockito.when(userRepository.existsByUsernameIgnoreCase(USERNAME)).thenReturn(false);
+        Mockito.when(userRepository.existsByEmailIgnoreCase(EMAIL)).thenReturn(false);
+        Mockito.when(userMapper.toEntity(req)).thenReturn(user);
+        Mockito.when(userMapper.toDto(user)).thenReturn(res);
+        Mockito.when(userRepository.save(Mockito.any(User.class))).thenReturn(user);
+        Mockito.doNothing().when(appEventPublisher).publishEvent(Mockito.any(EnvelopedEvent.class));
+        var result = authService.register(req);
+        Assertions.assertThat(result).isNotNull();
+        Assertions.assertThat(result.getUsername()).isEqualTo(USERNAME);
+    }
+
+    private User mockUser(UserStatusEnum status) {
         var user = new User();
         user.setUsername(USERNAME);
         user.setEmail(EMAIL);
         user.setFullName(FULL_NAME);
+        user.setStatus(status);
         user.setJobRoles(Set.of(mockJobRole()));
         return user;
     }
@@ -167,5 +214,20 @@ class AuthServiceTest {
         jobRole.setEndAt(Instant.now().plus(50, ChronoUnit.MINUTES));
         jobRole.setFunctionPrivileges(Set.of());
         return jobRole;
+    }
+
+    private RegisterUserReq mockRegisterReq() {
+        var req = new RegisterUserReq();
+        req.setUsername(USERNAME);
+        req.setEmail(EMAIL);
+        req.setPassword("b15dcpt082");
+        return req;
+    }
+
+    private UserResponse mockUserResponse() {
+        var userRes = new UserResponse();
+        userRes.setUsername(USERNAME);
+        userRes.setEmail(EMAIL);
+        return userRes;
     }
 }
