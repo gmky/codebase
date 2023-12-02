@@ -7,12 +7,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ExceptionEnum {
     ACCESS_DENIED("CB001", "Access denied"),
-    USERNAME_NOT_FOUND("CB002", "Username not found"),
-    LOGIN_INFO_NOT_MATCH("CB003", "Username and password does not match"),
-    JOB_ROLE_NOT_FOUND("CB004", "Job role not found"),
-    USERNAME_EXISTED("CB005", "Username already existed"),
-    EMAIL_EXISTED("CB006", "Email already existed"),
-    USER_NOT_FOUND("CB007", "User not found");
+    BAD_REQUEST("CB002", "Bad request"),
+    USERNAME_NOT_FOUND("CB003", "Username not found"),
+    LOGIN_INFO_NOT_MATCH("CB004", "Username and password does not match"),
+    JOB_ROLE_NOT_FOUND("CB005", "Job role not found"),
+    USERNAME_EXISTED("CB006", "Username already existed"),
+    EMAIL_EXISTED("CB007", "Email already existed"),
+    USER_NOT_FOUND("CB008", "User not found"),
+    INVALID_STATUS("CB009", "User status invalid");
 
     private final String code;
     private final String message;

@@ -3,6 +3,7 @@ package gmky.codebase.web.rest.v1;
 import gmky.codebase.api.AuthenticationApi;
 import gmky.codebase.api.model.LoginReq;
 import gmky.codebase.api.model.LoginResponse;
+import gmky.codebase.api.model.RegisterUserReq;
 import gmky.codebase.api.model.SummaryResponse;
 import gmky.codebase.api.model.UserResponse;
 import gmky.codebase.service.AuthService;
@@ -34,6 +35,12 @@ public class AuthResource implements AuthenticationApi {
     @Override
     public ResponseEntity<LoginResponse> login(LoginReq loginReq) {
         var result = authService.login(loginReq);
+        return ResponseEntity.ok(result);
+    }
+
+    @Override
+    public ResponseEntity<UserResponse> register(RegisterUserReq registerUserReq) {
+        var result = authService.register(registerUserReq);
         return ResponseEntity.ok(result);
     }
 

@@ -20,6 +20,7 @@ paths:
       tags:
         - Authentication
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -79,6 +80,35 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SummaryResponse'
+        400:
+          $ref: './common-type.yaml/#/components/responses/BadRequestException'
+        401:
+          $ref: './common-type.yaml/#/components/responses/UnauthorizedException'
+        403:
+          $ref: './common-type.yaml/#/components/responses/ForbiddenException'
+        404:
+          $ref: './common-type.yaml/#/components/responses/NotFoundException'
+        500:
+          $ref: './common-type.yaml/#/components/responses/InternalServerException'
+  /client-api/v1/register:
+    post:
+      operationId: register
+      description: Register new user
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterUserReq'
+      responses:
+        200:
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
         400:
           $ref: './common-type.yaml/#/components/responses/BadRequestException'
         401:
@@ -221,6 +251,7 @@ paths:
             type: integer
             format: int64
       requestBody:
+        required: true
         content:
           application/json:
             schema:
@@ -439,3 +470,27 @@ components:
           type: string
         privilegeCode:
           type: string
+    RegisterUserReq:
+      type: object
+      properties:
+        username:
+          type: string
+          nullable: false
+          minLength: 5
+          maxLength: 12
+        email:
+          type: string
+          nullable: false
+          minLength: 8
+          maxLength: 32
+        fullName:
+          type: string
+          nullable: false
+          minLength: 4
+          maxLength: 32
+        password:
+          type: string
+          format: password
+          nullable: false
+          maxLength: 24
+          minLength: 8
