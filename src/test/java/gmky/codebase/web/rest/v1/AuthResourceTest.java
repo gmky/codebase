@@ -1,6 +1,7 @@
 package gmky.codebase.web.rest.v1;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import gmky.codebase.api.model.ChangePasswordReq;
 import gmky.codebase.api.model.LoginReq;
 import gmky.codebase.api.model.RegisterUserReq;
 import gmky.codebase.service.impl.AuthServiceImpl;
@@ -26,6 +27,7 @@ class AuthResourceTest {
     private static final String SUMMARY_URI = "/client-api/v1/auth/summary";
     private static final String FORGOT_PASSWORD_URI = "/client-api/v1/forgot-password";
     private static final String REGISTER_URI = "/client-api/v1/register";
+    private static final String CHANGE_PASSWORD_URI = "/client-api/v1/change-password";
     private static final String USERNAME = "admin";
     private static final String PASSWORD = "b15dcpt082";
 
@@ -87,6 +89,19 @@ class AuthResourceTest {
                         .content(objectMapper.writeValueAsString(reqBody))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("Change password should OK")
+    void testChangePassword_shouldOK() throws Exception {
+        var reqBody = (new ChangePasswordReq())
+                .currentPassword("b15dcpt082")
+                .newPassword("b15dcpt0823");
+        mockMvc.perform(post(CHANGE_PASSWORD_URI)
+                        .content(objectMapper.writeValueAsString(reqBody))
+                        .contentType(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().isNoContent());
     }
 
     private LoginReq mockLoginReq() {

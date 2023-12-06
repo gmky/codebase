@@ -1,5 +1,6 @@
 package gmky.codebase.service;
 
+import gmky.codebase.api.model.ChangePasswordReq;
 import gmky.codebase.api.model.LoginReq;
 import gmky.codebase.api.model.RegisterUserReq;
 import gmky.codebase.api.model.UserResponse;
@@ -196,6 +197,40 @@ class AuthServiceTest {
         var result = authService.register(req);
         Assertions.assertThat(result).isNotNull();
         Assertions.assertThat(result.getUsername()).isEqualTo(USERNAME);
+    }
+
+    @Test
+    @DisplayName("Change password should throw BadRequestException when password is the same")
+    void testChangePassword_shouldThrowBadRequestException_whenPasswordIsTheSame() {
+        var reqBody = (new ChangePasswordReq()).newPassword("b15dcpt082").currentPassword("b15dcpt082");
+        Assertions.assertThatThrownBy(() -> authService.changePassword(reqBody)).isInstanceOf(BadRequestException.class);
+    }
+
+    @Test
+    @DisplayName("Change password should throw NotFoundException if user not found")
+    void testChangePassword_shouldThrowBadRequestException_whenUserNotFound() {
+        var reqBody = (new ChangePasswordReq()).newPassword("b15dcpt082").currentPassword("b15dcpt0822");
+        try (MockedStatic<SecurityUtil> util = Mockito.mockStatic(SecurityUtil.class)) {
+            util.when(SecurityUtil::getCurrentUsername).thenReturn(USERNAME);
+            Mockito.when(userRepository.findByUsernameIgnoreCase(USERNAME)).thenReturn(Optional.empty());
+            Assertions.assertThatThrownBy(() -> authService.changePassword(reqBody)).isInstanceOf(NotFoundException.class);
+        }
+    }
+
+    @Test
+    @DisplayName("Change password should OK")
+    void testChangePassword_shouldOK() {
+        var reqBody = (new ChangePasswordReq()).newPassword("b15dcpt082").currentPassword("b15dcpt0822");
+        var user = mockUser(UserStatusEnum.ACTIVE);
+        try (MockedStatic<SecurityUtil> util = Mockito.mockStatic(SecurityUtil.class)) {
+            util.when(SecurityUtil::getCurrentUsername).thenReturn(USERNAME);
+            Mockito.when(userRepository.findByUsernameIgnoreCase(USERNAME)).thenReturn(Optional.of(user));
+            Mockito.when(passwordEncoder.matches(Mockito.any(), Mockito.any())).thenReturn(true);
+            Mockito.when(passwordEncoder.encode(reqBody.getNewPassword())).thenReturn("hashedPassword");
+            Mockito.when(userRepository.save(user)).thenReturn(user);
+            authService.changePassword(reqBody);
+            Mockito.verify(userRepository, Mockito.times(1)).save(user);
+        }
     }
 
     private User mockUser(UserStatusEnum status) {

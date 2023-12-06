@@ -1,5 +1,6 @@
 package gmky.codebase.service;
 
+import gmky.codebase.api.model.ChangePasswordReq;
 import gmky.codebase.api.model.LoginReq;
 import gmky.codebase.api.model.LoginResponse;
 import gmky.codebase.api.model.RegisterUserReq;
@@ -18,4 +19,6 @@ public interface AuthService {
     void forgotPassword(String email);
 
     UserResponse register(RegisterUserReq req);
+
+    void changePassword(ChangePasswordReq req);
 }

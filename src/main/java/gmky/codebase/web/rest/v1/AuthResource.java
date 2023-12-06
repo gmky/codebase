@@ -1,6 +1,7 @@
 package gmky.codebase.web.rest.v1;
 
 import gmky.codebase.api.AuthenticationApi;
+import gmky.codebase.api.model.ChangePasswordReq;
 import gmky.codebase.api.model.LoginReq;
 import gmky.codebase.api.model.LoginResponse;
 import gmky.codebase.api.model.RegisterUserReq;
@@ -19,6 +20,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuthResource implements AuthenticationApi {
     private final AuthService authService;
+
+    @Override
+    public ResponseEntity<Void> changePassword(ChangePasswordReq changePasswordReq) {
+        authService.changePassword(changePasswordReq);
+        return ResponseEntity.noContent().build();
+    }
 
     @Override
     public ResponseEntity<Void> forgotPassword(String email) {
