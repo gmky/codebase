@@ -90,6 +90,33 @@ paths:
           $ref: './common-type.yaml/#/components/responses/NotFoundException'
         500:
           $ref: './common-type.yaml/#/components/responses/InternalServerException'
+  /client-api/v1/change-password:
+    post:
+      operationId: changePassword
+      description: Change password
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordReq'
+      responses:
+        200:
+          description: Change password successfully
+          content:
+            application/json: { }
+        400:
+          $ref: './common-type.yaml/#/components/responses/BadRequestException'
+        401:
+          $ref: './common-type.yaml/#/components/responses/UnauthorizedException'
+        403:
+          $ref: './common-type.yaml/#/components/responses/ForbiddenException'
+        404:
+          $ref: './common-type.yaml/#/components/responses/NotFoundException'
+        500:
+          $ref: './common-type.yaml/#/components/responses/InternalServerException'
   /client-api/v1/register:
     post:
       operationId: register
@@ -494,3 +521,18 @@ components:
           nullable: false
           maxLength: 24
           minLength: 8
+    ChangePasswordReq:
+      type: object
+      properties:
+        currentPassword:
+          type: string
+          format: password
+          nullable: false
+          minLength: 8
+          maxLength: 24
+        newPassword:
+          type: string
+          format: password
+          nullable: false
+          minLength: 8
+          maxLength: 24

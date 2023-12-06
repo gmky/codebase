@@ -14,7 +14,9 @@ public enum ExceptionEnum {
     USERNAME_EXISTED("CB006", "Username already existed"),
     EMAIL_EXISTED("CB007", "Email already existed"),
     USER_NOT_FOUND("CB008", "User not found"),
-    INVALID_STATUS("CB009", "User status invalid");
+    INVALID_STATUS("CB009", "User status invalid"),
+    PASSWORD_NOT_MATCHED("CB010", "Current password not matched"),
+    PASSWORD_DIFF("CB011", "New password must be different from old password");
 
     private final String code;
     private final String message;

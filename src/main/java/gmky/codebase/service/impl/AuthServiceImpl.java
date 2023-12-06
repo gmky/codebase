@@ -1,5 +1,6 @@
 package gmky.codebase.service.impl;
 
+import gmky.codebase.api.model.ChangePasswordReq;
 import gmky.codebase.api.model.LoginReq;
 import gmky.codebase.api.model.LoginResponse;
 import gmky.codebase.api.model.RegisterUserReq;
@@ -25,6 +26,7 @@ import gmky.codebase.service.AuthService;
 import gmky.codebase.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -39,6 +41,8 @@ import static gmky.codebase.enumeration.ExceptionEnum.ACCESS_DENIED;
 import static gmky.codebase.enumeration.ExceptionEnum.EMAIL_EXISTED;
 import static gmky.codebase.enumeration.ExceptionEnum.INVALID_STATUS;
 import static gmky.codebase.enumeration.ExceptionEnum.LOGIN_INFO_NOT_MATCH;
+import static gmky.codebase.enumeration.ExceptionEnum.PASSWORD_DIFF;
+import static gmky.codebase.enumeration.ExceptionEnum.PASSWORD_NOT_MATCHED;
 import static gmky.codebase.enumeration.ExceptionEnum.USERNAME_EXISTED;
 import static gmky.codebase.enumeration.ExceptionEnum.USERNAME_NOT_FOUND;
 import static gmky.codebase.enumeration.ExceptionEnum.USER_NOT_FOUND;
@@ -106,6 +110,20 @@ public class AuthServiceImpl implements AuthService {
         sendAccountActivationEmail(user);
         log.info("[{}][{}] Registered successfully", user.getId(), user.getUsername());
         return userMapper.toDto(user);
+    }
+
+    @Override
+    public void changePassword(ChangePasswordReq req) {
+        if (StringUtils.equals(req.getCurrentPassword(), req.getNewPassword())) {
+            throw new BadRequestException(PASSWORD_DIFF);
+        }
+        var actor = SecurityUtil.getCurrentUsername();
+        var user = userRepository.findByUsernameIgnoreCase(actor).orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
+        var isPasswordMatched = passwordEncoder.matches(req.getCurrentPassword(), user.getPassword());
+        if (!isPasswordMatched) throw new BadRequestException(PASSWORD_NOT_MATCHED);
+        var hashedPassword = passwordEncoder.encode(req.getNewPassword());
+        user.setPassword(hashedPassword);
+        userRepository.save(user);
     }
 
     private List<FunctionPrivilege> getAllFunctionPrivileges(User user) {
