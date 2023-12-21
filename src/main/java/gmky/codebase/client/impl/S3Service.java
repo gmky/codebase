@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.Instant;
 
 import static gmky.codebase.enumeration.ExceptionEnum.UPLOAD_FILE_ERROR;
@@ -57,7 +56,7 @@ public class S3Service implements StorageService {
             var getObjectReq = new GetObjectRequest(bucketName, key);
             var result = s3Client.getObject(getObjectReq);
             return result.getObjectContent().readAllBytes();
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error("Error when download file from S3: [{}]", key, e);
             throw new InternalServerException(UPLOAD_FILE_ERROR);
         }
