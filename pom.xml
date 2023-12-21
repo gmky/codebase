@@ -129,6 +129,11 @@
 			<version>${jwt.version}</version>
 			<scope>runtime</scope>
 		</dependency>
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk-s3</artifactId>
+            <version>1.12.619</version>
+        </dependency>
 	</dependencies>
 
 	<build>
@@ -188,12 +193,17 @@
 							<generatorName>spring</generatorName>
 							<importMappings>
 								<importMappings>UserStatusEnum=gmky.codebase.enumeration.UserStatusEnum</importMappings>
+                                <importMappings>DocumentStatusEnum=gmky.codebase.enumeration.DocumentStatusEnum
+                                </importMappings>
+                                <importMappings>DocumentCategoryEnum=gmky.codebase.enumeration.DocumentCategoryEnum
+                                </importMappings>
 								<importMappings>BadRequestException=gmky.codebase.errors.BadRequestException</importMappings>
 								<importMappings>NotFoundException=gmky.codebase.errors.NotFoundException</importMappings>
 								<importMappings>UnauthorizedException=gmky.codebase.errors.UnauthorizedException</importMappings>
 								<importMappings>ForbiddenException=gmky.codebase.errors.ForbiddenException</importMappings>
 								<importMappings>InternalServerException=gmky.codebase.errors.InternalServerException</importMappings>
 								<importMappings>Pageable=org.springframework.data.domain.Pageable</importMappings>
+                                <importMappings>Resource=org.springframework.core.io.Resource</importMappings>
 							</importMappings>
 							<configOptions>
 								<useTags>true</useTags>

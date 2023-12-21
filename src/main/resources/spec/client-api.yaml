@@ -7,11 +7,14 @@ servers:
   - url: http://localhost:8080
     description: Local Env
 tags:
-  - name: User Management
-    description: User Management
+  - name: User
+    description: User
   - name: Authentication
     description: Authentication
-  - name: Job Role Management
+  - name: Job Role
+    description: Job Role Management
+  - name: Document
+    description: Document Management
 paths:
   /client-api/v1/auth/login:
     post:
@@ -364,6 +367,161 @@ paths:
           $ref: './common-type.yaml/#/components/responses/NotFoundException'
         500:
           $ref: './common-type.yaml/#/components/responses/InternalServerException'
+  /client-api/v1/documents:
+    get:
+      tags:
+        - Document
+      description: Get all document with pagination
+      operationId: getAllDocuments
+      parameters:
+        - name: category
+          in: query
+          schema:
+            $ref: './common-type.yaml/#/components/schemas/DocumentCategoryEnum'
+        - name: refId
+          in: query
+          schema:
+            type: integer
+            format: int64
+        - name: status
+          in: query
+          schema:
+            $ref: './common-type.yaml/#/components/schemas/DocumentStatusEnum'
+        - name: pageable
+          in: query
+          schema:
+            $ref: './common-type.yaml/#/components/schemas/Pageable'
+      responses:
+        200:
+          description: All documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DocumentResponse'
+        400:
+          $ref: './common-type.yaml/#/components/responses/BadRequestException'
+        401:
+          $ref: './common-type.yaml/#/components/responses/UnauthorizedException'
+        403:
+          $ref: './common-type.yaml/#/components/responses/ForbiddenException'
+        404:
+          $ref: './common-type.yaml/#/components/responses/NotFoundException'
+        500:
+          $ref: './common-type.yaml/#/components/responses/InternalServerException'
+    post:
+      tags:
+        - Document
+      description: Upload document
+      operationId: uploadDocuments
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                info:
+                  $ref: '#/components/schemas/UploadFileReq'
+      responses:
+        204:
+          description: Upload files successfully
+          content:
+            application/json: { }
+        400:
+          $ref: './common-type.yaml/#/components/responses/BadRequestException'
+        401:
+          $ref: './common-type.yaml/#/components/responses/UnauthorizedException'
+        403:
+          $ref: './common-type.yaml/#/components/responses/ForbiddenException'
+        404:
+          $ref: './common-type.yaml/#/components/responses/NotFoundException'
+        500:
+          $ref: './common-type.yaml/#/components/responses/InternalServerException'
+  /client-api/v1/documents/{documentId}:
+    get:
+      operationId: getDocumentDetail
+      description: Get document detail by ID
+      tags:
+        - Document
+      parameters:
+        - name: documentId
+          description: Document ID
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Document detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentResponse'
+        400:
+          $ref: './common-type.yaml/#/components/responses/BadRequestException'
+        401:
+          $ref: './common-type.yaml/#/components/responses/UnauthorizedException'
+        403:
+          $ref: './common-type.yaml/#/components/responses/ForbiddenException'
+        404:
+          $ref: './common-type.yaml/#/components/responses/NotFoundException'
+        500:
+          $ref: './common-type.yaml/#/components/responses/InternalServerException'
+    delete:
+      operationId: deleteById
+      description: Delete document by ID
+      tags:
+        - Document
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Document deleted
+          content:
+            application/json: { }
+        400:
+          $ref: './common-type.yaml/#/components/responses/BadRequestException'
+        401:
+          $ref: './common-type.yaml/#/components/responses/UnauthorizedException'
+        403:
+          $ref: './common-type.yaml/#/components/responses/ForbiddenException'
+        404:
+          $ref: './common-type.yaml/#/components/responses/NotFoundException'
+        500:
+          $ref: './common-type.yaml/#/components/responses/InternalServerException'
+  /client-api/v1/documents/download:
+    get:
+      description: Download document by id
+      operationId: downloadById
+      tags:
+        - Document
+      parameters:
+        - name: documentId
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: Document binary
+          content:
+            application/octet-stream:
+              schema:
+                $ref: './common-type.yaml/#/components/schemas/Resource'
 components:
   schemas:
     UserResponse:
@@ -536,3 +694,40 @@ components:
           nullable: false
           minLength: 8
           maxLength: 24
+    UploadFileReq:
+      type: object
+      properties:
+        category:
+          $ref: './common-type.yaml/#/components/schemas/DocumentCategoryEnum'
+        refId:
+          type: integer
+          format: int64
+    DocumentResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        fileName:
+          type: string
+        filePath:
+          type: string
+        fileType:
+          type: string
+        category:
+          $ref: './common-type.yaml/#/components/schemas/DocumentCategoryEnum'
+        status:
+          $ref: './common-type.yaml/#/components/schemas/DocumentStatusEnum'
+        deletedAt:
+          type: string
+          format: date-time
+        createdBy:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedBy:
+          type: string
+        updatedAt:
+          type: string
+          format: date-time

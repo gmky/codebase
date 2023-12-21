@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets;
 
 @Configuration
 public class TemplateEngineConfiguration {
-    private static final String EMAIL_TEMPLATE_PREFIX = "/template/email/";
+    private static final String EMAIL_TEMPLATE_PREFIX = "/templates/email/";
     private static final String EMAIL_TEMPLATE_SUFFIX = ".html";
 
     @Bean
