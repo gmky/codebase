@@ -20,6 +20,17 @@ components:
         - PENDING
         - ACTIVE
         - IN_ACTIVE
+    DocumentStatusEnum:
+      type: string
+      enum:
+        - ACTIVE
+        - DRAFT
+        - DELETED
+    DocumentCategoryEnum:
+      type: string
+      enum:
+        - TEMPLATE
+        - GENERATED
     Pageable:
       type: object
       properties:
@@ -27,6 +38,12 @@ components:
           type: integer
         size:
           type: integer
+    Resource:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
   responses:
     BadRequestException:
       description: BadRequestException

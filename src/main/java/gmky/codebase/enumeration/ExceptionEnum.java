@@ -16,7 +16,9 @@ public enum ExceptionEnum {
     USER_NOT_FOUND("CB008", "User not found"),
     INVALID_STATUS("CB009", "User status invalid"),
     PASSWORD_NOT_MATCHED("CB010", "Current password not matched"),
-    PASSWORD_DIFF("CB011", "New password must be different from old password");
+    PASSWORD_DIFF("CB011", "New password must be different from old password"),
+    UPLOAD_FILE_ERROR("CB012", "Unable to upload file"),
+    DOCUMENT_NOT_FOUND("CB013", "Document not found");
 
     private final String code;
     private final String message;

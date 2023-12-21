@@ -113,6 +113,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public void changePassword(ChangePasswordReq req) {
         if (StringUtils.equals(req.getCurrentPassword(), req.getNewPassword())) {
             throw new BadRequestException(PASSWORD_DIFF);
