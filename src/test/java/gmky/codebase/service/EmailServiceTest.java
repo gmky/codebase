@@ -4,6 +4,8 @@ import gmky.codebase.enumeration.EmailTypeEnum;
 import gmky.codebase.model.dto.SendEmailReq;
 import gmky.codebase.service.impl.EmailServiceImpl;
 import jakarta.mail.internet.MimeMessage;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,11 +34,16 @@ class EmailServiceTest {
     @Mock
     MimeMessage message;
 
-    @Test
-    void testSendMail_shouldOK() {
-        var req = mockReq();
+    @BeforeEach
+    void setUp() {
         ReflectionTestUtils.setField(emailService, "from", "codebase@gmky.deb");
         ReflectionTestUtils.setField(emailService, "name", "Codebase");
+    }
+
+    @Test
+    @DisplayName("Test send mail should OK")
+    void testSendMail_shouldOK() {
+        var req = mockReq();
         Mockito.when(mailSender.createMimeMessage()).thenReturn(message);
         Mockito.when(springTemplateEngine.process(Mockito.any(String.class), Mockito.any(Context.class))).thenReturn("Email content");
         emailService.sendMailWithTemplate(req);
