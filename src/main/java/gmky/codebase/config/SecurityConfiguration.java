@@ -41,6 +41,8 @@ public class SecurityConfiguration {
                 .sessionManagement(ssm -> ssm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .authorizeHttpRequests(req -> req
+                        .requestMatchers("/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/client-api/v1/auth/register").permitAll()
                         .requestMatchers("/client-api/v1/auth/login").permitAll()
                         .requestMatchers("/client-api/v1/auth/forgot-password").permitAll()
